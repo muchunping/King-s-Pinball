@@ -8,7 +8,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 canvas.drawRect(gameArea, scorePaint);
                 holder.getSurface().unlockCanvasAndPost(canvas);
 
-                //start draw.
+//                //start draw.
                 ballLocation = new Rect(width / 2 - 50, height / 2 - 50, width / 2 + 50, height / 2 + 50);
                 canvas = holder.getSurface().lockCanvas(ballLocation);
                 canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
@@ -111,11 +110,7 @@ public class MainActivity extends AppCompatActivity {
         Rect inOutDirty = new Rect(left, top, right, bottom);
         Canvas canvas = holder.getSurface().lockCanvas(inOutDirty);
         canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
-        if(gameArea!=null){
-            canvas.drawRect(gameArea, scorePaint);
-        }else{
-            Log.d("tag","gameArea为空！");
-        }
+        canvas.drawRect(gameArea, scorePaint);
         canvas.drawCircle(ballLocation.exactCenterX(), ballLocation.exactCenterY(), 50, ballPaint);
         holder.getSurface().unlockCanvasAndPost(canvas);
         handler.postDelayed(new Runnable() {
