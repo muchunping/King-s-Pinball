@@ -25,8 +25,8 @@ public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler();
 
     //球的运行方向
-    int dx = 1;
-    int dy = 1;
+    int dx = -3;
+    int dy = -2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
             dy = -dy;
         }
         //draw
-        int left = ballLocation.left - ballLocation.width() < gameArea.left ? gameArea.left : ballLocation.left - ballLocation.width();
-        int top = ballLocation.top - ballLocation.height() < gameArea.top ? gameArea.top : ballLocation.top - ballLocation.height();
+        int left = ballLocation.left - ballLocation.width() <= gameArea.left ? gameArea.left + 1 : ballLocation.left - ballLocation.width();
+        int top = ballLocation.top - ballLocation.height() <= gameArea.top ? gameArea.top + 1 : ballLocation.top - ballLocation.height();
         int right = ballLocation.right + ballLocation.width() > gameArea.right ? gameArea.right : ballLocation.right + ballLocation.width();
         int bottom = ballLocation.bottom + ballLocation.height() > gameArea.bottom ? gameArea.bottom : ballLocation.bottom + ballLocation.height();
         Rect inOutDirty = new Rect(left, top, right, bottom);
