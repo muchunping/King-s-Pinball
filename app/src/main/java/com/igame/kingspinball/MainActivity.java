@@ -5,10 +5,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.graphics.RectF;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -111,6 +111,11 @@ public class MainActivity extends AppCompatActivity {
         Rect inOutDirty = new Rect(left, top, right, bottom);
         Canvas canvas = holder.getSurface().lockCanvas(inOutDirty);
         canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
+        if(gameArea!=null){
+            canvas.drawRect(gameArea, scorePaint);
+        }else{
+            Log.d("tag","gameArea为空！");
+        }
         canvas.drawCircle(ballLocation.exactCenterX(), ballLocation.exactCenterY(), 50, ballPaint);
         holder.getSurface().unlockCanvasAndPost(canvas);
         handler.postDelayed(new Runnable() {
