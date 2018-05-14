@@ -24,8 +24,8 @@ public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler();
 
     //球的运行方向
-    int dx = -3;
-    int dy = -2;
+    int dx = -20;
+    int dy = -12;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,18 +57,16 @@ public class MainActivity extends AppCompatActivity {
                 }
                 hasRun = true;
                 gameArea = new Rect(10, (int) (height * 0.1), width - 10, (int) (height * 0.9));
-                //draw game area.
-                Canvas canvas = holder.getSurface().lockCanvas(null);
+                Canvas canvas = holder.lockCanvas(null);
+                //清屏
                 canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
+                //绘制黄色框
                 canvas.drawRect(gameArea, scorePaint);
-                holder.getSurface().unlockCanvasAndPost(canvas);
-
-//                //start draw.
+                //计算小球位置
                 ballLocation = new Rect(width / 2 - 50, height / 2 - 50, width / 2 + 50, height / 2 + 50);
-                canvas = holder.getSurface().lockCanvas(ballLocation);
-                canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
+                //绘制小球
                 canvas.drawCircle(width / 2, height / 2, 50, ballPaint);
-                holder.getSurface().unlockCanvasAndPost(canvas);
+                holder.unlockCanvasAndPost(canvas);
 
                 //begin game.
                 start();
@@ -93,31 +91,56 @@ public class MainActivity extends AppCompatActivity {
         if (STATUS != 1) {
             return;
         }
-        //start move
-        ballLocation.offset(dx, dy);
-        //碰撞检测
-        if (ballLocation.right >= gameArea.right || ballLocation.left <= gameArea.left) {
+        //清除上一次痕迹
+        Canvas canvas = holder.lockCanvas(getUpdateArea(ballLocation, gameArea, dx, dy));
+        canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
+        //边界检测， tx，ty为实际移动位置，当临近黄色框边缘时，该值会使球移动到黄色框内紧挨边缘的位置而不会超出黄色框
+        int tx = dx, ty = dy;
+        if (ballLocation.left + dx <= gameArea.left) {
+            tx = gameArea.left - ballLocation.left + 1;
+            dx = -dx;
+        } else if (ballLocation.right + dx >= gameArea.right) {
+            tx = gameArea.right - ballLocation.right - 1;
             dx = -dx;
         }
-        if (ballLocation.top <= gameArea.top || ballLocation.bottom >= gameArea.bottom) {
+        if (ballLocation.top + dy <= gameArea.top) {
+            ty = gameArea.top - ballLocation.top + 1;
+            dy = -dy;
+        } else if (ballLocation.bottom + dy >= gameArea.bottom) {
+            ty = gameArea.bottom - ballLocation.bottom - 1;
             dy = -dy;
         }
-        //draw
-        int left = ballLocation.left - ballLocation.width() <= gameArea.left ? gameArea.left + 1 : ballLocation.left - ballLocation.width();
-        int top = ballLocation.top - ballLocation.height() <= gameArea.top ? gameArea.top + 1 : ballLocation.top - ballLocation.height();
-        int right = ballLocation.right + ballLocation.width() > gameArea.right ? gameArea.right : ballLocation.right + ballLocation.width();
-        int bottom = ballLocation.bottom + ballLocation.height() > gameArea.bottom ? gameArea.bottom : ballLocation.bottom + ballLocation.height();
-        Rect inOutDirty = new Rect(left, top, right, bottom);
-        Canvas canvas = holder.getSurface().lockCanvas(inOutDirty);
+        //更新圆的位置
+        ballLocation.offset(tx, ty);
         canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
-        canvas.drawRect(gameArea, scorePaint);
-        canvas.drawCircle(ballLocation.exactCenterX(), ballLocation.exactCenterY(), 50, ballPaint);
+        canvas.drawCircle(ballLocation.centerX(), ballLocation.centerY(), 50, ballPaint);
         holder.getSurface().unlockCanvasAndPost(canvas);
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 runBall();
             }
-        }, 5);
+        }, 10);
+    }
+
+    //计算实际应该重绘的区域
+    private static Rect getUpdateArea(Rect src, Rect dst, int dx, int dy) {
+        int l = src.left, t = src.top, r = src.right, b = src.bottom;
+        if (dx > 0) {
+            r = src.right + dx;
+        } else {
+            l = src.left + dx;
+        }
+        if (dy > 0) {
+            b = src.bottom + dy;
+        } else {
+            t = src.top + dy;
+        }
+        //-1是为了不影响黄色边框
+        l = l <= dst.left ? dst.left + 1 : l;
+        t = t <= dst.top ? dst.top + 1 : t;
+        r = r >= dst.right ? dst.right - 1 : r;
+        b = b >= dst.bottom ? dst.bottom - 1 : b;
+        return new Rect(l, t, r, b);
     }
 }
