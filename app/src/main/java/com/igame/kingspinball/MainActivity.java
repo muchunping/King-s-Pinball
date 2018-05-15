@@ -56,20 +56,21 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 hasRun = true;
-                gameArea = new Rect(10, (int) (height * 0.1), width - 10, (int) (height * 0.9));
-                Canvas canvas = holder.lockCanvas(null);
-                //清屏
-                canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
-                //绘制黄色框
-                canvas.drawRect(gameArea, scorePaint);
-                //计算小球位置
-                ballLocation = new Rect(width / 2 - 50, height / 2 - 50, width / 2 + 50, height / 2 + 50);
-                //绘制小球
-                canvas.drawCircle(width / 2, height / 2, 50, ballPaint);
-                holder.unlockCanvasAndPost(canvas);
 
-                //begin game.
-                start();
+                gameArea = new Rect(10, (int) (height * 0.1), width - 10, (int) (height * 0.9));
+                ballLocation = new Rect(width / 2 - 50, height / 2 - 50, width / 2 + 50, height / 2 + 50);
+
+                initDraw();
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        initDraw();
+                        //begin game.
+                        start();
+                    }
+                }, 1);
+
             }
 
             @Override
@@ -78,6 +79,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         setContentView(surfaceView);
+    }
+
+    private void initDraw(){
+        Canvas canvas = holder.lockCanvas(null);
+        //清屏
+        canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
+        //绘制黄色框
+        canvas.drawRect(gameArea, scorePaint);
+        //计算小球位置
+        //绘制小球
+        canvas.drawCircle(ballLocation.centerX(), ballLocation.centerY(), 50, ballPaint);
+        holder.unlockCanvasAndPost(canvas);
     }
 
     private void start() {
@@ -112,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
         }
         //更新圆的位置
         ballLocation.offset(tx, ty);
-        canvas.drawColor(0xFF2B2B2B, PorterDuff.Mode.SRC_OVER);
         canvas.drawCircle(ballLocation.centerX(), ballLocation.centerY(), 50, ballPaint);
         holder.getSurface().unlockCanvasAndPost(canvas);
         handler.postDelayed(new Runnable() {
